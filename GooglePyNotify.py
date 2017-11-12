@@ -4,9 +4,6 @@ from http.server import BaseHTTPRequestHandler, HTTPServer, SimpleHTTPRequestHan
 import time
 from gtts import gTTS
 import time
-import tempfile
-import os
-import sys
 import pychromecast
 import socket
 
@@ -17,30 +14,30 @@ class MyServer(SimpleHTTPRequestHandler):
 
 	
     def do_GET(self):
+        #Check For URL Stream "http://IPADDRESS/Notify?"
+        
         if "/Notify?" in self.path:
             pre,notification = self.path.split("?")
-            notification = notification.replace("+"," ")
+            if notification == "":
+                notification = "No+Notification+Data+Recieved"
+                
+            notification = notification.replace("+"," ") #Replace "+" Char in String for Spaces
             print("Notification Sent")
             print(notification)
             #print("The Path Matched")
-            savepath = self.path+'.mp3'
-            for char in savepath:
-                if char in "/?":
-                    savepath = savepath.replace(char,"")
-            #print(savepath)
-            
-            text = gTTS(text=notification, lang='en-uk')
+            text = gTTS(text=notification, lang='en-uk') #See Google TTS API for more Languages (Note: This may do translation Also - Needs Testing)
             text.save("Notification.mp3")
-
             chromecasts = pychromecast.get_chromecasts()
             castdevice = next(cc for cc in chromecasts if cc.device.model_name == "Google Home")
             castdevice.wait()
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # Pull IP Address for Local HTTP File Serving (Note: This requires an internet connection)
             s.connect(("8.8.8.8", 80))
             IpAdd = s.getsockname()[0]
             print (IpAdd)
             s.close()
-            mediacontroller = castdevice.media_controller
+            
+            mediacontroller = castdevice.media_controller #ChromeCast Specifics
             URL = "http://"+IpAdd+"/"+"Notification.mp3"
             print (URL)
             mediacontroller.play_media(URL, 'audio/mp3')
@@ -52,7 +49,7 @@ class MyServer(SimpleHTTPRequestHandler):
             
 		
 
-	#	POST is for submitting data.
+	#	POST is for submitting data. -- This is Unused as of yet
     def do_POST(self):
 
         print( "incomming http: ", self.path )
@@ -66,7 +63,7 @@ class MyServer(SimpleHTTPRequestHandler):
 		#import pdb; pdb.set_trace()
 
 
-myServer = HTTPServer((hostName, hostPort), MyServer)
+myServer = HTTPServer((hostName, hostPort), MyServer) #HTTP Server Stuff (Python Librarys)
 print(time.asctime(), "Server Starts - %s:%s" % (hostName, hostPort))
 
 try:
