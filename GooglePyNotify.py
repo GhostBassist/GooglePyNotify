@@ -15,12 +15,12 @@ class HttpServer(SimpleHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
 
-    def get(self):
+    def do_GET(self):
         # Check For URL Stream "http://IPADDRESS/Notify?"
             
         if "/Notify?" in self.path:
             self._set_headers()
-            notification = self.path.split("?")
+            pre,notification = self.path.split("?")
 
             # Add some error handling for chrome looping
             redir = "<html><head><meta http-equiv='refresh' content='3;url=.\' /></head><body><h1>Notification Sent! <br>"+notification+"</h1></body></html>"
@@ -51,10 +51,10 @@ class HttpServer(SimpleHTTPRequestHandler):
             mediacontroller.play_media(url, 'audio/mp3')
             
         else:
-            SimpleHTTPRequestHandler.get(self)
+            SimpleHTTPRequestHandler.do_GET(self)
    
 	# POST is for submitting data
-    def post(self):
+    def do_POST(self):
 
         print( "incomming http: ", self.path )
 
