@@ -3,27 +3,33 @@ import socket
 from http.server import BaseHTTPRequestHandler, HTTPServer, SimpleHTTPRequestHandler
 import time
 from gtts import gTTS
-import time
 import pychromecast
-import socket
 
 hostName = "0.0.0.0"
 hostPort = 80
 
 class MyServer(SimpleHTTPRequestHandler):
+def _set_headers(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
 
 	
     def do_GET(self):
         #Check For URL Stream "http://IPADDRESS/Notify?"
         
         if "/Notify?" in self.path:
+            self._set_headers()
             pre,notification = self.path.split("?")
+            redir = "<html><head><meta http-equiv='refresh' content='3;url=.\' /></head><body><h1>Notification Sent! <br>"+notification+"</h1></body></html>" #Add some error handling for chrome looping -.-
+            print(redir)
+            self.wfile.write(redir.encode())
             if notification == "":
                 notification = "No+Notification+Data+Recieved"
                 
             notification = notification.replace("+"," ") #Replace "+" Char in String for Spaces
             print("Notification Sent")
-            print(notification)
+            #print(notification)
             #print("The Path Matched")
             text = gTTS(text=notification, lang='en-uk') #See Google TTS API for more Languages (Note: This may do translation Also - Needs Testing)
             text.save("Notification.mp3")
@@ -46,9 +52,6 @@ class MyServer(SimpleHTTPRequestHandler):
             
         else:
             SimpleHTTPRequestHandler.do_GET(self)
-            
-		
-
 	#	POST is for submitting data. -- This is Unused as of yet
     def do_POST(self):
 
