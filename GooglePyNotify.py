@@ -9,7 +9,7 @@ HOST_NAME = "0.0.0.0"
 HOST_PORT = 80
 
 class HttpServer(SimpleHTTPRequestHandler):
-
+            
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -27,28 +27,14 @@ class HttpServer(SimpleHTTPRequestHandler):
             print(redir)
 
             self.wfile.write(redir.encode())
-            if notification == "":
-                notification = "No+Notification+Data+Recieved"
-              
-            notification = notification.replace("+"," ") # Replace "+" Char in String for Spaces
-            print("Notification Sent.")
-
-            text = gTTS(text=notification, lang='en-uk') # See Google TTS API for more Languages (Note: This may do translation Also - Needs Testing)
-            text.save("Notification.mp3")
-            chromecasts = pychromecast.get_chromecasts()
-            castdevice = next(cc for cc in chromecasts if cc.device.model_name == "Google Home")
-            castdevice.wait()
-
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # Pull IP Address for Local HTTP File Serving (Note: This requires an internet connection)
-            s.connect(("8.8.8.8", 80))
-            IpAdd = s.getsockname()[0]
-            print (IpAdd)
-            s.close()
-            
-            mediacontroller = castdevice.media_controller # ChromeCast Specific
-            url = "http://"+IpAdd+"/"+"Notification.mp3"
-            print (url)
-            mediacontroller.play_media(url, 'audio/mp3')
+            self.notify(str(notification))
+            return
+        
+        elif "/HelloWorld" in self.path:
+            self._set_headers()
+            print("Hello World Test")
+            self.notify("Hello+World")
+            return
             
         else:
             SimpleHTTPRequestHandler.do_GET(self)
@@ -61,6 +47,35 @@ class HttpServer(SimpleHTTPRequestHandler):
         content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
         post_data = self.rfile.read(content_length) # <--- Gets the data itself
         self.send_response(200)
+
+    def notify(self, notification):
+        if notification == "":
+                notification = "No+Notification+Data+Recieved"
+              
+        notification = notification.replace("+"," ") # Replace "+" Char in String for Spaces
+        print("Notification Sent.")
+
+        text = gTTS(text=notification, lang='en-uk') # See Google TTS API for more Languages (Note: This may do translation Also - Needs Testing)
+        text.save("Notification.mp3")
+        
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # Pull IP Address for Local HTTP File Serving (Note: This requires an internet connection)
+        s.connect(("8.8.8.8", 80))
+        IpAdd = s.getsockname()[0]
+        print (IpAdd)
+        s.close()
+        self.Cast(IpAdd)
+        return
+    
+    def Cast(self, IpAdd):
+        chromecasts = pychromecast.get_chromecasts()
+        castdevice = next(cc for cc in chromecasts if cc.device.model_name == "Google Home")
+        castdevice.wait()
+        mediacontroller = castdevice.media_controller # ChromeCast Specific
+        url = "http://"+IpAdd+"/"+"Notification.mp3"
+        print (url)
+        mediacontroller.play_media(url, 'audio/mp3')
+        return
+
 
 httpServer = HTTPServer((HOST_NAME, HOST_PORT), HttpServer) #HTTP Server Stuff (Python Librarys)
 print(time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, HOST_PORT))
