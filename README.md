@@ -3,7 +3,7 @@ Using Python and Google home to Build a Simple Notification System with TTS
 
 # Installation
 
-This was built and tested on Windows 10, However should be compatible with any internet enabled device that can run python
+This was built and tested on Windows 10, However should be compatible with any internet enabled device that can run python.
 Please ensure to install the pychromecast Librarys in order for this to work
 
 <code> python -m pip install pychromecast </code>
