@@ -1,37 +1,39 @@
 from __future__ import print_function
-import socket
-from http.server import BaseHTTPRequestHandler, HTTPServer, SimpleHTTPRequestHandler
 import time
-from gtts import gTTS
+import socket
 import pychromecast
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+from gtts import gTTS
 
-hostName = "0.0.0.0"
-hostPort = 80
+HOST_NAME = "0.0.0.0"
+HOST_PORT = 80
 
-class MyServer(SimpleHTTPRequestHandler):
-def _set_headers(self):
+class HttpServer(SimpleHTTPRequestHandler):
+
+    def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
 
-	
-    def do_GET(self):
-        #Check For URL Stream "http://IPADDRESS/Notify?"
-        
+    def get(self):
+        # Check For URL Stream "http://IPADDRESS/Notify?"
+            
         if "/Notify?" in self.path:
             self._set_headers()
-            pre,notification = self.path.split("?")
-            redir = "<html><head><meta http-equiv='refresh' content='3;url=.\' /></head><body><h1>Notification Sent! <br>"+notification+"</h1></body></html>" #Add some error handling for chrome looping -.-
+            notification = self.path.split("?")
+
+            # Add some error handling for chrome looping
+            redir = "<html><head><meta http-equiv='refresh' content='3;url=.\' /></head><body><h1>Notification Sent! <br>"+notification+"</h1></body></html>"
             print(redir)
+
             self.wfile.write(redir.encode())
             if notification == "":
                 notification = "No+Notification+Data+Recieved"
-                
-            notification = notification.replace("+"," ") #Replace "+" Char in String for Spaces
-            print("Notification Sent")
-            #print(notification)
-            #print("The Path Matched")
-            text = gTTS(text=notification, lang='en-uk') #See Google TTS API for more Languages (Note: This may do translation Also - Needs Testing)
+              
+            notification = notification.replace("+"," ") # Replace "+" Char in String for Spaces
+            print("Notification Sent.")
+
+            text = gTTS(text=notification, lang='en-uk') # See Google TTS API for more Languages (Note: This may do translation Also - Needs Testing)
             text.save("Notification.mp3")
             chromecasts = pychromecast.get_chromecasts()
             castdevice = next(cc for cc in chromecasts if cc.device.model_name == "Google Home")
@@ -43,17 +45,16 @@ def _set_headers(self):
             print (IpAdd)
             s.close()
             
-            mediacontroller = castdevice.media_controller #ChromeCast Specifics
-            URL = "http://"+IpAdd+"/"+"Notification.mp3"
-            print (URL)
-            mediacontroller.play_media(URL, 'audio/mp3')
-            #mediacontroller.block_until_active()
-            #print(mediacontroller.status)
+            mediacontroller = castdevice.media_controller # ChromeCast Specific
+            url = "http://"+IpAdd+"/"+"Notification.mp3"
+            print (url)
+            mediacontroller.play_media(url, 'audio/mp3')
             
         else:
-            SimpleHTTPRequestHandler.do_GET(self)
-	#	POST is for submitting data. -- This is Unused as of yet
-    def do_POST(self):
+            SimpleHTTPRequestHandler.get(self)
+   
+	# POST is for submitting data
+    def post(self):
 
         print( "incomming http: ", self.path )
 
@@ -61,18 +62,13 @@ def _set_headers(self):
         post_data = self.rfile.read(content_length) # <--- Gets the data itself
         self.send_response(200)
 
-        client.close()
-
-		#import pdb; pdb.set_trace()
-
-
-myServer = HTTPServer((hostName, hostPort), MyServer) #HTTP Server Stuff (Python Librarys)
-print(time.asctime(), "Server Starts - %s:%s" % (hostName, hostPort))
+httpServer = HTTPServer((HOST_NAME, HOST_PORT), HttpServer) #HTTP Server Stuff (Python Librarys)
+print(time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, HOST_PORT))
 
 try:
-	myServer.serve_forever()
+    httpServer.serve_forever()
 except KeyboardInterrupt:
-	pass
+    pass
 
-myServer.server_close()
-print(time.asctime(), "Server Stops - %s:%s" % (hostName, hostPort))
+httpServer.server_close()
+print(time.asctime(), "Server Stops - %s:%s" % (HOST_NAME, HOST_PORT))
