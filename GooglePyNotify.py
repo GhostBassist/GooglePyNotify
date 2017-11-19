@@ -20,7 +20,7 @@ class HttpServer(SimpleHTTPRequestHandler):
             
         if "/Notify?" in self.path:
             self._set_headers()
-            notification = self.path.split("?")
+            pre-url, notification = self.path.split("?")
 
             # Add some error handling for chrome looping
             redir = "<html><head><meta http-equiv='refresh' content='3;url=.\' /></head><body><h1>Notification Sent! <br>"+notification+"</h1></body></html>"
@@ -75,7 +75,6 @@ class HttpServer(SimpleHTTPRequestHandler):
         print (url)
         mediacontroller.play_media(url, 'audio/mp3')
         return
-
 
 httpServer = HTTPServer((HOST_NAME, HOST_PORT), HttpServer) #HTTP Server Stuff (Python Librarys)
 print(time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, HOST_PORT))
