@@ -20,7 +20,7 @@ class HttpServer(SimpleHTTPRequestHandler):
             
         if "/Notify?" in self.path:
             self._set_headers()
-            pre,notification = self.path.split("?")
+            notification = self.path.split("?")
 
             # Add some error handling for chrome looping
             redir = "<html><head><meta http-equiv='refresh' content='3;url=.\' /></head><body><h1>Notification Sent! <br>"+notification+"</h1></body></html>"
@@ -60,18 +60,18 @@ class HttpServer(SimpleHTTPRequestHandler):
         
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # Pull IP Address for Local HTTP File Serving (Note: This requires an internet connection)
         s.connect(("8.8.8.8", 80))
-        IpAdd = s.getsockname()[0]
-        print (IpAdd)
+        ip_add = s.getsockname()[0]
+        print (ip_add)
         s.close()
-        self.Cast(IpAdd)
+        self.Cast(ip_add)
         return
     
-    def Cast(self, IpAdd):
+    def Cast(self, ip_add):
         chromecasts = pychromecast.get_chromecasts()
         castdevice = next(cc for cc in chromecasts if cc.device.model_name == "Google Home")
         castdevice.wait()
         mediacontroller = castdevice.media_controller # ChromeCast Specific
-        url = "http://"+IpAdd+"/"+"Notification.mp3"
+        url = "http://"+ip_add+"/"+"Notification.mp3"
         print (url)
         mediacontroller.play_media(url, 'audio/mp3')
         return
