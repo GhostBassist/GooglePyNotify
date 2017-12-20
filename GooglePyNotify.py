@@ -20,7 +20,7 @@ class HttpServer(SimpleHTTPRequestHandler):
             
         if "/Notify?" in self.path:
             self._set_headers()
-            pre-url, notification = self.path.split("?")
+            preurl, notification = self.path.split("?")
 
             # Add some error handling for chrome looping
             redir = "<html><head><meta http-equiv='refresh' content='3;url=.\' /></head><body><h1>Notification Sent! <br>"+notification+"</h1></body></html>"
