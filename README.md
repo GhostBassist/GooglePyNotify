@@ -3,12 +3,10 @@ Using Python and Google home to Build a Simple Notification System with TTS
 
 # Installation
 
-This was built and tested on Windows 10, However should be compatible with any internet enabled device that can run python.
-Please ensure to install the pychromecast Librarys in order for this to work
-
-<code> python -m pip install pychromecast </code>
-
-once installed run the .py script on your device and remember that you will need to port forward in order to intergrate with IFTTT Webhooks Service
+Clone this repository
+run <code> pip install -r requirements.txti </code>
+run <code> sudo python ./GooglePyNotify.py </code>
+- remember that you will need to port forward in order to intergrate with IFTTT Webhooks Service
 
 Usage: http://IP-OR-WEB-ADDRESS/Notify?Notification+Message+Goes+Here
 
