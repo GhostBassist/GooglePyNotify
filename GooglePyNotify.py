@@ -82,7 +82,7 @@ class HttpServer(SimpleHTTPRequestHandler):
         castdevice = next(cc for cc in CHROMECASTS if "Google Home" in cc.device.model_name)
         castdevice.wait()
         mediacontroller = castdevice.media_controller # ChromeCast Specific
-        url = "http://" + ip_add + "/" + mp3
+        url = "http://" + ip_add + ":" + HOST_PORT + "/" + mp3
         print (url)
         mediacontroller.play_media(url, 'audio/mp3')
         return
