@@ -9,7 +9,7 @@ gTTS-token==1.1.2
 idna==2.7
 ifaddr==0.1.4
 ipaddress==1.0.22
-protobuf==3.6.1
+protobuf==3.18.3
 PyChromecast==2.3.0
 requests==2.19.1
 six==1.11.0
